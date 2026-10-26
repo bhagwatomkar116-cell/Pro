@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stickify | Flat Design Sticker Store</title>
+  <style>
+    /* ==========================================
+       FLAT DESIGN SYSTEM & CSS VARIABLES
+       ========================================== */
+    :root {
+      --bg-main: #f4f6f8;
+      --card-bg: #ffffff;
+      --primary: #ff4757;      /* Bright Coral */
+      --secondary: #2ed573;    /* Bright Mint Green */
+      --accent: #ffa502;       /* Vibrant Yellow-Orange */
+      --dark: #2f3542;         /* Solid Dark Slate */
+      --light-gray: #eccc68;   /* Soft Accent */
+      --border-color: #dfe4ea;
+      --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-family);
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--dark);
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Flat Buttons (No gradient, flat solid fill, sharp interaction) */
+    .btn {
+      display: inline-block;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      text-align: center;
+      transition: background-color 0.15s ease-in-out;
+      text-decoration: none;
+    }
+    .btn-primary { background-color: var(--primary); color: #fff; }
+    .btn-primary:hover { background-color: #ff6b81; }
+    .btn-secondary { background-color: var(--secondary); color: #fff; }
+    .btn-secondary:hover { background-color: #7bed9f; }
+    .btn-dark { background-color: var(--dark); color: #fff; }
+    .btn-dark:hover { background-color: #57606f; }
+    .btn-outline { background-color: transparent; border: 2px solid var(--dark); color: var(--dark); }
+    .btn-outline:hover { background-color: var(--dark); color: #fff; }
+
+    /* ==========================================
+       NAVIGATION BAR
+       ========================================== */
+    header {
+      background-color: #ffffff;
+      border-bottom: 3px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: var(--primary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--dark);
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 4px;
+    }
+
+    .nav-btn:hover, .nav-btn.active {
+      background-color: var(--border-color);
+    }
+
+    .badge {
+      background-color: var(--primary);
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 2px 7px;
+      border-radius: 10px;
+      margin-left: 4px;
+    }
+
+    /* ==========================================
+       LAYOUT & PAGE SECTIONS
+       ========================================== */
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 0 20px;
+      flex: 1;
+      width: 100%;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ==========================================
+       SHOP PAGE (SEARCH, FILTERS & PRODUCTS)
+       ========================================== */
+    .shop-layout {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 25px;
+    }
+
+    /* Search & Filter Panel */
+    .filter-panel {
+      background: var(--card-bg);
+      padding: 20px;
+      border-radius: 8px;
+      border: 2px solid var(--border-color);
+      height: fit-content;
+    }
+
+    .filter-group {
+      margin-bottom: 20px;
+    }
+
+    .filter-group h4 {
+      margin-bottom: 10px;
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--dark);
+    }
+
+    .filter-group input[type="text"],
+    .filter-group select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 0.95rem;
+      outline: none;
+    }
+
+    .filter-group input[type="text"]:focus,
+    .filter-group select:focus {
+      border-color: var(--primary);
+    }
+
+    /* Product Grid */
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .product-card {
+      background: var(--card-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .sticker-preview {
+      height: 140px;
+      background-color: var(--bg-main);
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4.5rem;
+      margin-bottom: 12px;
+      user-select: none;
+    }
+
+    .product-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+    }
+
+    .product-meta {
+      font-size: 0.85rem;
+      color: #747d8c;
+      margin-bottom: 10px;
+    }
+
+    .product-price {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: var(--primary);
+      margin-bottom: 12px;
+    }
+
+    .product-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .product-actions .btn {
+      flex: 1;
+    }
+
+    .wishlist-btn {
+      background: none;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px;
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+    .wishlist-btn.active { background-color: #ff4757; color: white; border-color: #ff4757; }
+
+    /* ==========================================
+       LOGIN PAGE
+       ========================================== */
+    .login-box {
+      max-width: 400px;
+      margin: 40px auto;
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 8px;
+      border: 2px solid var(--border-color);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 700;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      outline: none;
+    }
+
+    /* ==========================================
+       DASHBOARD & TAB SYSTEM
+       ========================================== */
+    .dashboard-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 25px;
+    }
+
+    .dashboard-menu {
+      background: var(--card-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .dash-tab-btn {
+      text-align: left;
+      padding: 12px 15px;
+      background: none;
+      border: none;
+      font-weight: 700;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--dark);
+    }
+
+    .dash-tab-btn.active, .dash-tab-btn:hover {
+      background-color: var(--primary);
+      color: white;
+    }
+
+    .dash-content {
+      background: var(--card-bg);
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 25px;
+    }
+
+    .dash-section { display: none; }
+    .dash-section.active { display: block; }
+
+    /* Table Styling for Cart */
+    .cart-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    .cart-table th, .cart-table td {
+      padding: 12px;
+      border-bottom: 2px solid var(--border-color);
+      text-align: left;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--dark);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 6px;
+      font-weight: 700;
+      display: none;
+      z-index: 1000;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .shop-layout, .dashboard-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER NAVIGATION -->
+  <header>
+    <div class="nav-container">
+      <div class="logo" onclick="switchPage('shop')">🏷️ STICKIFY</div>
+      <div class="nav-links">
+        <button class="nav-btn active" onclick="switchPage('shop')">Shop</button>
+        <button class="nav-btn" onclick="openDashboardTab('cart')">Cart <span id="cart-count" class="badge">0</span></button>
+        <button class="nav-btn" onclick="openDashboardTab('profile')">Dashboard</button>
+        <button class="nav-btn btn-outline" id="auth-nav-btn" onclick="handleAuthNav()">Login</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN CONTAINER -->
+  <div class="container">
+
+    <!-- ================= SHOP PAGE ================= -->
+    <section id="page-shop" class="page active">
+      <div class="shop-layout">
+        
+        <!-- Search & Filters Sidebar -->
+        <aside class="filter-panel">
+          <div class="filter-group">
+            <h4>Search</h4>
+            <input type="text" id="search-input" placeholder="Search stickers..." oninput="applyFilters()">
+          </div>
+
+          <div class="filter-group">
+            <h4>Style</h4>
+            <select id="filter-style" onchange="applyFilters()">
+              <option value="all">All Styles</option>
+              <option value="Minimal">Minimal</option>
+              <option value="Retro">Retro</option>
+              <option value="Cute">Cute</option>
+              <option value="Tech">Tech</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <h4>Size</h4>
+            <select id="filter-size" onchange="applyFilters()">
+              <option value="all">All Sizes</option>
+              <option value="Small">Small (2")</option>
+              <option value="Medium">Medium (3")</option>
+              <option value="Large">Large (4")</option>
+            </select>
+          </div>
+
+          <div class="filter-group">
+            <h4>Max Price ($)</h4>
+            <input type="range" id="filter-price" min="2" max="10" step="0.5" value="10" oninput="updatePriceLabel(this.value)">
+            <div>Max: $<span id="price-val">10.00</span></div>
+          </div>
+
+          <button class="btn btn-dark" style="width: 100%;" onclick="resetFilters()">Reset Filters</button>
+        </aside>
+
+        <!-- Product Cards Grid -->
+        <main>
+          <div class="products-grid" id="products-container">
+            <!-- Dynamically populated via JS -->
+          </div>
+        </main>
+      </div>
+    </section>
+
+    <!-- ================= LOGIN PAGE ================= -->
+    <section id="page-login" class="page">
+      <div class="login-box">
+        <h2 style="margin-bottom: 20px; text-align: center;">Welcome Back</h2>
+        <form onsubmit="handleLogin(event)">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="login-email" required value="alex@stickify.com">
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="login-password" required value="password123">
+          </div>
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Sign In</button>
+        </form>
+      </div>
+    </section>
+
+    <!-- ================= DASHBOARD PAGE ================= -->
+    <section id="page-dashboard" class="page">
+      <div class="dashboard-layout">
+        
+        <!-- Dashboard Navigation Menu -->
+        <div class="dashboard-menu">
+          <button class="dash-tab-btn active" id="tab-btn-profile" onclick="switchDashTab('profile')">👤 Profile</button>
+          <button class="dash-tab-btn" id="tab-btn-cart" onclick="switchDashTab('cart')">🛒 Cart</button>
+          <button class="dash-tab-btn" id="tab-btn-wishlist" onclick="switchDashTab('wishlist')">❤️ Wishlist</button>
+          <button class="dash-tab-btn" id="tab-btn-support" onclick="switchDashTab('support')">💬 Customer Support</button>
+        </div>
+
+        <!-- Dashboard Main Content Area -->
+        <div class="dash-content">
+
+          <!-- 1. PROFILE SECTION -->
+          <div id="dash-profile" class="dash-section active">
+            <h2>User Profile</h2>
+            <hr style="margin: 15px 0; border: 1px solid var(--border-color);">
+            <form onsubmit="saveProfile(event)" style="max-width: 400px;">
+              <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="profile-name" value="Alex Johnson">
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="profile-email" value="alex@stickify.com" disabled>
+              </div>
+              <div class="form-group">
+                <label>Shipping Address</label>
+                <input type="text" id="profile-address" value="123 Sticker Lane, Design City">
+              </div>
+              <button type="submit" class="btn btn-secondary">Update Profile</button>
+            </form>
+          </div>
+
+          <!-- 2. CART SECTION -->
+          <div id="dash-cart" class="dash-section">
+            <h2>Your Shopping Cart</h2>
+            <hr style="margin: 15px 0; border: 1px solid var(--border-color);">
+            <div id="cart-contents">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- 3. WISHLIST SECTION -->
+          <div id="dash-wishlist" class="dash-section">
+            <h2>Your Wishlist</h2>
+            <hr style="margin: 15px 0; border: 1px solid var(--border-color);">
+            <div class="products-grid" id="wishlist-container">
+              <!-- Dynamically populated -->
+            </div>
+          </div>
+
+          <!-- 4. CUSTOMER SUPPORT SECTION -->
+          <div id="dash-support" class="dash-section">
+            <h2>Customer Support</h2>
+            <p style="margin-bottom: 15px; color: #747d8c;">Need help with an order or custom sticker designs? Send us a message!</p>
+            <form onsubmit="handleSupportSubmit(event)" style="max-width: 500px;">
+              <div class="form-group">
+                <label>Subject</label>
+                <select id="support-subject" required>
+                  <option value="Order Status">Order Status</option>
+                  <option value="Custom Sticker Request">Custom Sticker Request</option>
+                  <option value="Refund Request">Refund Request</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Message</label>
+                <textarea id="support-msg" rows="5" style="width: 100%; padding: 10px; border: 2px solid var(--border-color); border-radius: 6px; outline: none;" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Send Message</button>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast">Action notification</div>
+
+  <!-- JavaScript Logic -->
+  <script>
+    /* ==========================================
+       DATA & APPLICATION STATE
+       ========================================== */
+    const STICKERS = [
+      { id: 1, name: "Cool Cat", style: "Cute", size: "Medium", price: 3.50, icon: "🐱" },
+      { id: 2, name: "Cyber Skull", style: "Tech", size: "Large", price: 5.00, icon: "💀" },
+      { id: 3, name: "Retro Wave", style: "Retro", size: "Medium", price: 4.25, icon: "🌅" },
+      { id: 4, name: "Minimal Plant", style: "Minimal", size: "Small", price: 2.50, icon: "🪴" },
+      { id: 5, name: "Space Explorer", style: "Cute", size: "Large", price: 4.75, icon: "🚀" },
+      { id: 6, name: "Pixel Heart", style: "Tech", size: "Small", price: 3.00, icon: "👾" },
+      { id: 7, name: "Vintage Camera", style: "Retro", size: "Medium", price: 4.00, icon: "📷" },
+      { id: 8, name: "Coffee First", style: "Minimal", size: "Small", price: 2.75, icon: "☕" }
+    ];
+
+    let state = {
+      isLoggedIn: true,
+      user: { name: "Alex Johnson", email: "alex@stickify.com", address: "123 Sticker Lane, Design City" },
+      cart: [],
+      wishlist: [1, 3] // Sticker IDs
+    };
+
+    /* ==========================================
+       INITIALIZATION
+       ========================================== */
+    window.onload = () => {
+      renderProducts(STICKERS);
+      updateCartUI();
+    };
+
+    /* ==========================================
+       ROUTING / PAGE SWITCHING
+       ================
